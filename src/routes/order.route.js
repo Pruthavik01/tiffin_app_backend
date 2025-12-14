@@ -99,7 +99,6 @@ router.get('/', async (req, res) => {
   try {
     const { userId, startDate, endDate } = req.query;
 
-    // validation
     if (!userId) {
       return res.status(400).json({
         message: 'userId is required'
@@ -147,9 +146,7 @@ router.get('/', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      message: 'Server error'
-    });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -160,5 +157,7 @@ router.get('/summary/all', getOrdersSummary);
 // GET: Orders summary for a specific provider
 // Usage: GET /api/orders/summary/provider?providerId=xxx&date=2025-12-14
 router.get('/summary/provider', getProviderOrdersSummary);
+
+router.get("/count", async (req, res) => {})
 
 module.exports = router;
