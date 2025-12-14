@@ -92,6 +92,51 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+// GET: Orders for provider (provider dashboard)
+router.get('/provider', async (req, res) => {
+  try {
+    const { providerId } = req.query;
+
+    if (!providerId) {
+      return res.status(400).json({
+        message: 'providerId is required'
+      });
+    }
+
+    // validate provider
+    const provider = await User.findById(providerId);
+    if (!provider) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (provider.role !== 'provider') {
+      return res.status(403).json({
+        message: 'Access denied. Only providers can view orders.'
+      });
+    }
+
+    // fetch orders for this provider
+    const orders = await Order.find({ providerId })
+      .populate('userId', 'name mobile')   // student details
+      .populate('menuId', 'date')          // menu date
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      count: orders.length,
+      orders
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'Server error'
+    });
+  }
+});
+
+
+
 // Update menu (provider only)
 router.put('/:menuId', async (req, res) => {
   try {
