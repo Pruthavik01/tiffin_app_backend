@@ -94,4 +94,35 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    // validation
+    if (!userId) {
+      return res.status(400).json({
+        message: 'userId is required'
+      });
+    }
+
+    // fetch orders for this student
+    const orders = await Order.find({ userId })
+      .populate('providerId', 'name mobile')
+      .populate('menuId', 'date')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      count: orders.length,
+      orders
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'Server error'
+    });
+  }
+});
+
+
 module.exports = router;
