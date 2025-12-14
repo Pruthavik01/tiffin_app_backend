@@ -96,17 +96,40 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { userId } = req.query;
+    const { userId, startDate, endDate } = req.query;
 
-    // validation
     if (!userId) {
-      return res.status(400).json({
-        message: 'userId is required'
-      });
+      return res.status(400).json({ message: 'userId is required' });
     }
 
-    // fetch orders for this student
-    const orders = await Order.find({ userId })
+    let dateFilter = {};
+
+    if (startDate || endDate) {
+      dateFilter.createdAt = {};
+
+      const start = startDate
+        ? new Date(...startDate.split('-').map((v, i) => i === 1 ? v - 1 : v))
+        : null;
+
+      const end = endDate
+        ? new Date(...endDate.split('-').map((v, i) => i === 1 ? v - 1 : v))
+        : null;
+
+      if (start) {
+        start.setHours(0, 0, 0, 0);
+        dateFilter.createdAt.$gte = start;
+      }
+
+      if (end) {
+        end.setHours(23, 59, 59, 999);
+        dateFilter.createdAt.$lte = end;
+      }
+    }
+
+    const orders = await Order.find({
+      userId,
+      ...dateFilter
+    })
       .populate('providerId', 'name mobile')
       .populate('menuId', 'date')
       .sort({ createdAt: -1 });
@@ -118,11 +141,11 @@ router.get('/', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      message: 'Server error'
-    });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
+
+router.get("/count", async (req, res) => {})
 
 module.exports = router;
