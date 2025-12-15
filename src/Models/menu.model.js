@@ -36,6 +36,14 @@ const menuSchema = new mongoose.Schema(
         type: Number,   // e.g. 50
         required: true
       }
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    deletedAt: {
+      type: Date,
+      default: null
     }
   },
   {

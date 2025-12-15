@@ -261,7 +261,10 @@ router.delete('/:menuId', async (req, res) => {
       return res.status(403).json({ message: 'Access denied. You do not own this menu.' });
     }
 
-    await Menu.deleteOne({ _id: menuId });
+    menu.isActive = false;
+    menu.deletedAt = new Date();
+    await menu.save();
+
 
     res.status(200).json({ message: 'Menu deleted successfully' });
   } catch (error) {

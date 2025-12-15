@@ -11,7 +11,7 @@ exports.getOrdersSummary = async (req, res) => {
     if (date) {
       const startOfDay = new Date(date);
       startOfDay.setHours(0, 0, 0, 0);
-      
+
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
 
@@ -23,7 +23,7 @@ exports.getOrdersSummary = async (req, res) => {
       // Default to today
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -49,7 +49,7 @@ exports.getOrdersSummary = async (req, res) => {
         // Skip orders where menu is deleted
         return;
       }
-      
+
       totalOrders += 1;
       order.items.forEach(item => {
         if (item.mealType === 'full') {
@@ -114,7 +114,7 @@ exports.getProviderOrdersSummary = async (req, res) => {
     if (date) {
       const startOfDay = new Date(date);
       startOfDay.setHours(0, 0, 0, 0);
-      
+
       const endOfDay = new Date(date);
       endOfDay.setHours(23, 59, 59, 999);
 
@@ -126,7 +126,7 @@ exports.getProviderOrdersSummary = async (req, res) => {
       // Default to today
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -137,7 +137,13 @@ exports.getProviderOrdersSummary = async (req, res) => {
     }
 
     // Get all orders for the provider
-    const orders = await Order.find(query).populate('userId').populate('menuId');
+    const orders = await Order.find(query)
+      .populate('userId')
+      .populate({
+        path: 'menuId',
+        match: { isActive: true }
+      });
+
 
     // Calculate summary statistics
     let totalOrders = 0;
@@ -152,7 +158,7 @@ exports.getProviderOrdersSummary = async (req, res) => {
         // Skip orders where menu is deleted
         return;
       }
-      
+
       totalOrders += 1;
       order.items.forEach(item => {
         if (item.mealType === 'full') {
