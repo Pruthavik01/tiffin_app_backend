@@ -34,23 +34,22 @@ exports.getOrdersSummary = async (req, res) => {
     }
 
     // Get all orders for the date
-    const orders = await Order.find(query).populate('userId').populate('menuId');
+    // Populate menuId only if the menu is active (soft-delete support)
+    const orders = await Order.find(query)
+      .populate('userId')
+      .populate({ path: 'menuId', match: { isActive: true } });
 
-    // Calculate summary statistics
-    let totalOrders = 0;
+    // Exclude orders whose menu was deleted (menuId will be null after populate)
+    const validOrders = orders.filter(o => o.menuId && o.menuId._id);
+
+    // Calculate summary statistics based on valid orders only
+    const totalOrders = validOrders.length;
     let fullTiffinCount = 0;
     let halfTiffinCount = 0;
     let riceOnlyCount = 0;
     let totalRevenue = 0;
 
-    // Only count orders if menu exists
-    orders.forEach(order => {
-      if (!order.menuId) {
-        // Skip orders where menu is deleted
-        return;
-      }
-
-      totalOrders += 1;
+    validOrders.forEach(order => {
       order.items.forEach(item => {
         if (item.mealType === 'full') {
           fullTiffinCount += item.quantity;
@@ -70,10 +69,10 @@ exports.getOrdersSummary = async (req, res) => {
       halfTiffin: halfTiffinCount,
       riceOnly: riceOnlyCount,
       totalRevenue,
-      orders: orders.map(order => ({
+      orders: validOrders.map(order => ({
         orderId: order._id,
-        userId: order.userId._id,
-        userName: order.userId.name,
+        userId: order.userId?._id,
+        userName: order.userId?._doc?.name || order.userId?.name,
         items: order.items,
         grandTotal: order.grandTotal,
         status: order.status,
@@ -145,21 +144,17 @@ exports.getProviderOrdersSummary = async (req, res) => {
       });
 
 
-    // Calculate summary statistics
-    let totalOrders = 0;
+    // Exclude orders whose menu was deleted/inactive (menuId will be null after populate match)
+    const validOrders = orders.filter(o => o.menuId && o.menuId._id);
+
+    // Calculate summary statistics based on valid orders only
+    const totalOrders = validOrders.length;
     let fullTiffinCount = 0;
     let halfTiffinCount = 0;
     let riceOnlyCount = 0;
     let totalRevenue = 0;
 
-    // Only count orders if menu exists
-    orders.forEach(order => {
-      if (!order.menuId) {
-        // Skip orders where menu is deleted
-        return;
-      }
-
-      totalOrders += 1;
+    validOrders.forEach(order => {
       order.items.forEach(item => {
         if (item.mealType === 'full') {
           fullTiffinCount += item.quantity;
@@ -180,10 +175,10 @@ exports.getProviderOrdersSummary = async (req, res) => {
       halfTiffin: halfTiffinCount,
       riceOnly: riceOnlyCount,
       totalRevenue,
-      orders: orders.map(order => ({
+      orders: validOrders.map(order => ({
         orderId: order._id,
-        userId: order.userId._id,
-        userName: order.userId.name,
+        userId: order.userId?._id,
+        userName: order.userId?._doc?.name || order.userId?.name,
         items: order.items,
         grandTotal: order.grandTotal,
         status: order.status,

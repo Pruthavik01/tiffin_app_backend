@@ -26,11 +26,11 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // 3. get menu
-    const menu = await Menu.findById(menuId);
+    // 3. get menu (must be active)
+    const menu = await Menu.findOne({ _id: menuId, isActive: true });
     if (!menu) {
       return res.status(404).json({
-        message: 'Menu not found'
+        message: 'Menu not found or not active'
       });
     }
 

@@ -20,14 +20,18 @@ const corsOptions = {
     
     // List of allowed origins
     const allowedOrigins = [
-      'http://localhost:5173', // Vite default
-      'http://localhost:3000', // Your backend
-      'http://localhost:19006', // Expo web
-      'http://localhost:8081', // Expo dev server
-      'exp://localhost:8081', // Expo protocol
-      /^http:\/\/192\.168\.\d+\.\d+:\d+$/, // Allow any local network IP (for physical devices)
-      /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/, // Allow 10.x.x.x IPs
-    ];
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:19006',
+    'http://localhost:8081',
+    'http://192.168.1.12:3000',
+    'exp://localhost:8081',
+    /^http:\/\/192\.168\.\d+\.\d+:\d+$/,
+    /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/,
+    // ✅ Allow Expo tunnel / web origins
+    /^https?:\/\/.*\.exp\.direct$/,
+    /^https?:\/\/.*\.expo\.dev$/,
+];
     
     // Check if origin matches any allowed pattern
     const isAllowed = allowedOrigins.some(allowed => {

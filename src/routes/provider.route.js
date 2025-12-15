@@ -40,10 +40,11 @@ router.post('/create-menu', async (req, res) => {
       });
     }
 
-    // check if menu already exists for same date
+    // check if an active menu already exists for same date
     const existingMenu = await Menu.findOne({
       providerId,
-      date: new Date(date)
+      date: new Date(date),
+      isActive: true
     });
 
     if (existingMenu) {
@@ -76,7 +77,7 @@ router.post('/create-menu', async (req, res) => {
 // get data menu (provider only)
 router.get('/', async (req, res) => {
   try {
-    const menus = await Menu.find()
+    const menus = await Menu.find({ isActive: true })
       .populate('providerId', 'name mobile') // optional but useful
       .sort({ date: -1 }); // latest first
 
@@ -128,7 +129,7 @@ router.post('/provider', async (req, res) => {
     end.setHours(23, 59, 59, 999);
 
     // Query orders for this provider using orderDate (not createdAt)
-    // This ensures filtering by the intended order-day even if createdAt/timezones differ.
+    // Populate menuId only if menu is active; then filter out orders with inactive menus
     const orders = await Order.find({
       providerId,
       orderDate: {
@@ -137,12 +138,14 @@ router.post('/provider', async (req, res) => {
       }
     })
       .populate('userId', 'name mobile')   // student details
-      .populate('menuId', 'date')          // menu date
+      .populate({ path: 'menuId', match: { isActive: true }, select: 'date' })
       .sort({ orderDate: -1 });
 
+    const validOrders = orders.filter(o => o.menuId && o.menuId._id);
+
     res.status(200).json({
-      count: orders.length,
-      orders
+      count: validOrders.length,
+      orders: validOrders
     });
 
   } catch (error) {
