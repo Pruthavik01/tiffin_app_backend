@@ -40,19 +40,6 @@ router.post('/create-menu', async (req, res) => {
       });
     }
 
-    // check if an active menu already exists for same date
-    const existingMenu = await Menu.findOne({
-      providerId,
-      date: new Date(date),
-      isActive: true
-    });
-
-    if (existingMenu) {
-      return res.status(400).json({
-        message: 'Menu already exists for this date'
-      });
-    }
-
     // create menu
     const menu = await Menu.create({
       providerId,
@@ -74,11 +61,11 @@ router.post('/create-menu', async (req, res) => {
   }
 });
 
-// get data menu (provider only)
+// get data menu
 router.get('/', async (req, res) => {
   try {
-    const menus = await Menu.find({ isActive: true })
-      .populate('providerId', 'name mobile') // optional but useful
+    const menus = await Menu.find()
+      .populate('providerId', 'name mobile')
       .sort({ date: -1 }); // latest first
 
     res.status(200).json({

@@ -51,7 +51,7 @@ const menuSchema = new mongoose.Schema(
   }
 );
 
-// one menu per provider per day
-menuSchema.index({ providerId: 1, date: 1 }, { unique: true });
+
 
 module.exports = mongoose.model('Menu', menuSchema);
+
