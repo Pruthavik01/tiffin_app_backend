@@ -5,6 +5,7 @@ const session = require('express-session');
 const authRoutes = require('./routes/auth.route');
 const providerRoutes = require('./routes/provider.route');
 const orderRoutes = require('./routes/order.route');
+const analyticRoutes = require('./routes/analytic.route');
 const connectDB = require('./db/db');
 
 // Connect to database
@@ -78,6 +79,7 @@ app.use(session({
 app.use("/auth", authRoutes);
 app.use("/provider", providerRoutes);
 app.use("/order", orderRoutes);
+app.use('/analytic', analyticRoutes);
 
 // 404 handler
 app.use((req, res) => {
