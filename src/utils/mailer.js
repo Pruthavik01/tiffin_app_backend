@@ -16,4 +16,19 @@ const sendOTP = async (email, otp) => {
   });
 };
 
-module.exports = { sendOTP };
+const sendEmail = async (userId, fromEmail, subject, message) => {
+  await resend.emails.send({
+    from: "contact@resend.dev",
+    to: "ramr33770@gmail.com",
+    subject,
+    reply_to: fromEmail,
+    html: `
+      <h2>Contact from User <p>${userId}</p></h2>
+      <p><strong>From:</strong> ${fromEmail}</p>
+      <p>${message}</p>
+    `,
+  });
+};
+
+
+module.exports = { sendOTP, sendEmail };
