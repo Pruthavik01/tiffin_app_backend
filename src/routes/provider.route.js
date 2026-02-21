@@ -130,9 +130,16 @@ router.post('/provider', async (req, res) => {
 
     const validOrders = orders.filter(o => o.menuId && o.menuId._id);
 
+    // Add status information for FE
+    const ordersWithStatus = validOrders.map(order => {
+      const orderObj = order.toObject();
+      // Include status and other relevant info
+      return orderObj;
+    });
+
     res.status(200).json({
-      count: validOrders.length,
-      orders: validOrders
+      count: ordersWithStatus.length,
+      orders: ordersWithStatus
     });
 
   } catch (error) {

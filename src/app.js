@@ -27,7 +27,7 @@ const corsOptions = {
     'http://localhost:3000',
     'http://localhost:19006',
     'http://localhost:8081',
-    'http://192.168.1.12:3000',
+    'http://192.168.1.7:3000',
     'exp://localhost:8081',
     /^http:\/\/192\.168\.\d+\.\d+:\d+$/,
     /^http:\/\/10\.\d+\.\d+\.\d+:\d+$/,
@@ -80,7 +80,7 @@ app.use(session({
 // Routes
 app.use("/auth", authRoutes);
 app.use("/provider", providerRoutes);
-app.use("/order", orderRoutes);
+app.use("/orders", orderRoutes);
 app.use('/analytic', analyticRoutes);
 app.use('/profile', profileRoutes); 
 app.use('/user', userRoutes);

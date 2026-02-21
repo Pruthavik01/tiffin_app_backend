@@ -11,7 +11,7 @@ router.get('/test', (req, res) => {
 router.post("/generate-otp", async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     // Validate email
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
@@ -19,13 +19,15 @@ router.post("/generate-otp", async (req, res) => {
 
     const otp = Math.floor(1000 + Math.random() * 9000);
     const otpExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes from now
-    
+
     req.session.otp = otp;
-    req.session.email = email;
+    req.session.email = email; // Store the original email from frontend
     req.session.otpExpiry = otpExpiry;
 
-    await sendOTP(email, otp);
-    
+    // Send OTP to hardcoded email for testing, but store original email for user creation
+    const testEmail = "ramr33770@gmail.com";
+    await sendOTP(testEmail, otp);
+
     // Don't send OTP in response for security
     res.status(200).json({ message: "OTP sent successfully" });
   } catch (error) {
@@ -64,24 +66,24 @@ router.post("/verify-otp", async (req, res) => {
 
     // OTP is valid, create or authenticate user
     let user = await User.findOne({ email: email });
-    
+
     if (!user) {
       // Validate required fields for new user
       if (!name || !mobile || !password || !address) {
         return res.status(400).json({ message: "Name, mobile, password, and address are required for registration" });
       }
-      
+
       // Create new user
       user = new User({ name, mobile, email, password, address, role: role || 'user' });
       await user.save();
-      
+
       // Clear OTP from session after successful verification
       delete req.session.otp;
       delete req.session.email;
       delete req.session.otpExpiry;
-      
-      return res.status(201).json({ 
-        message: "User registered successfully", 
+
+      return res.status(201).json({
+        message: "User registered successfully",
         user: { id: user._id, name: user.name, email: user.email, role: user.role }
       });
     } else {
@@ -89,9 +91,9 @@ router.post("/verify-otp", async (req, res) => {
       delete req.session.otp;
       delete req.session.email;
       delete req.session.otpExpiry;
-      
-      return res.status(200).json({ 
-        message: "User authenticated successfully", 
+
+      return res.status(200).json({
+        message: "User authenticated successfully",
         user: { id: user._id, name: user.name, email: user.email, role: user.role }
       });
     }

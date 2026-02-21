@@ -59,7 +59,10 @@ exports.getOrdersSummary = async (req, res) => {
           riceOnlyCount += item.quantity;
         }
       });
-      totalRevenue += order.grandTotal;
+      // Only count revenue for approved orders
+      if (order.status === 'approved') {
+        totalRevenue += order.grandTotal;
+      }
     });
 
     const summary = {
@@ -107,7 +110,10 @@ exports.getProviderOrdersSummary = async (req, res) => {
       });
     }
 
-    let query = { providerId };
+    let query = { 
+      providerId,
+      status: 'approved'
+    };
 
     // If date is provided, filter orders by that date
     if (date) {
@@ -131,7 +137,7 @@ exports.getProviderOrdersSummary = async (req, res) => {
 
       query.orderDate = {
         $gte: today,
-        $lt: tomorrow
+        $lt: tomorrow,
       };
     }
 
@@ -164,7 +170,10 @@ exports.getProviderOrdersSummary = async (req, res) => {
           riceOnlyCount += item.quantity;
         }
       });
-      totalRevenue += order.grandTotal;
+      // Only count revenue for approved orders
+      if (order.status === 'approved' ) {
+        totalRevenue += order.grandTotal;
+      }
     });
 
     const summary = {
