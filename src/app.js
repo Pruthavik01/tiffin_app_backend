@@ -85,6 +85,11 @@ app.use('/analytic', analyticRoutes);
 app.use('/profile', profileRoutes); 
 app.use('/user', userRoutes);
 
+// Health check route (important for uptime monitor)
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "OK", message: "Tiffin backend running" });
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
